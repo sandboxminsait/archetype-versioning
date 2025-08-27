@@ -1,6 +1,4 @@
 mode: MainLine
-assembly-versioning-scheme: MajorMinorPatch
-assembly-file-versioning-scheme: MajorMinorPatch
 commit-message-incrementing: Disabled
 branches:
   main:
@@ -12,16 +10,11 @@ branches:
     mode: ContinuousDelivery
     label: rc
     increment: Patch
-    regex: ^releases?[/-]
   qa:
     mode: ContinuousDelivery
     label: qa
     increment: Patch
-    regex: ^qa[/-]
   develop:
     mode: ContinuousDeployment
     label: dev
     increment: Minor
-    regex: ^dev(elop)?(ment)?$[/-]
-ignore:
-  sha: []
