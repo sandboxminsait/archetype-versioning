@@ -1,20 +1,14 @@
 mode: MainLine
-commit-message-incrementing: Disabled
 branches:
   main:
     mode: ContinuousDelivery
     label: ""
-    increment: Patch
-    is-mainline: true
   release:
     mode: ContinuousDelivery
     label: rc
-    increment: Patch
   qa:
     mode: ContinuousDelivery
     label: qa
-    increment: Patch
   develop:
     mode: ContinuousDeployment
     label: dev
-    increment: Minor
