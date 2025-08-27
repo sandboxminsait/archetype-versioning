@@ -1,68 +1,42 @@
-mode: ContinuousDelivery
-next-version: 1.0.0
+mode: MainLine
 assembly-versioning-scheme: MajorMinorPatch
-assembly-file-versioning-scheme: MajorMinorPatchTag
-major-version-bump-message: '\+semver:\s?(breaking|major)'
-minor-version-bump-message: '\+semver:\s?(feature|minor)'
-patch-version-bump-message: '\+semver:\s?(fix|patch)'
-no-bump-message: '\+semver:\s?(none|skip)'
-legacy-semver-padding: 4
-build-metadata-padding: 4
-commits-since-version-source-padding: 4
-commit-message-incrementing: Enabled
-
+assembly-file-versioning-scheme: MajorMinorPatch
+commit-message-incrementing: Disabled
 branches:
   main:
     mode: ContinuousDelivery
     tag: ''
-    increment: None
+    increment: Patch
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
-    regex: ^master$|^main$
-    source-branches: ['release']
-    
+    is-mainline: true
+  release:
+    mode: ContinuousDelivery
+    tag: rc
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    is-mainline: false
+    regex: ^releases?[/-]
+    source-branches: ['main', 'develop', 'release']
+  qa:
+    mode: ContinuousDelivery
+    tag: qa
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    is-mainline: false
+    regex: ^qa[/-]
+    source-branches: ['develop', 'release', 'qa']
   develop:
     mode: ContinuousDeployment
-    tag: 'dev'
+    tag: dev
     increment: Minor
     prevent-increment-of-merged-branch-version: false
     track-merge-target: true
-    regex: ^dev(elop)?(ment)?$
-    source-branches: ['feature']
-    
-  qa:
-    mode: ContinuousDeployment
-    tag: 'qa'
-    increment: Minor
-    prevent-increment-of-merged-branch-version: false
-    track-merge-target: true
-    regex: ^qa$|^quality$
-    source-branches: ['develop']
-    
-  release:
-    mode: ContinuousDeployment
-    tag: 'rc'
-    increment: None
-    prevent-increment-of-merged-branch-version: true
-    track-merge-target: false
-    regex: ^releases?[/-]v?(?<version>\d+(?:\.\d+)?(?:\.\d+)?)$
-    source-branches: ['qa', 'develop']
-    
-  feature:
-    mode: ContinuousDeployment
-    tag: 'feature'
-    increment: Inherit
-    prevent-increment-of-merged-branch-version: false
-    track-merge-target: false
-    regex: ^features?[/-](?<BranchName>.+)
-    source-branches: ['develop']
-
+    is-mainline: false
+    regex: ^dev(elop)?(ment)?$[/-]
+    source-branches: ['develop', 'release', 'qa', 'main']
 ignore:
   sha: []
-  paths:
-    # Configuración para SOLO procesar commits que incluyan archivos .tf
-    # La lógica es: "ignora todo EXCEPTO archivos .tf"
-    - '!**/*.tf'        # NO ignores archivos .tf (en cualquier ubicación)
-    - '**/*'            # SÍ ignora todo lo demás
-
 merge-message-formats: {}
