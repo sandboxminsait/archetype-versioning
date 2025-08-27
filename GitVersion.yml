@@ -5,14 +5,14 @@ commit-message-incrementing: Disabled
 branches:
   main:
     mode: ContinuousDelivery
-    tag: ''
+    label: ""  # Cambiado de 'tag' a 'label'
     increment: Patch
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
     is-mainline: true
   release:
     mode: ContinuousDelivery
-    tag: rc
+    label: rc  # Cambiado de 'tag' a 'label'
     increment: Patch
     prevent-increment-of-merged-branch-version: false
     track-merge-target: false
@@ -21,7 +21,7 @@ branches:
     source-branches: ['main', 'develop', 'release']
   qa:
     mode: ContinuousDelivery
-    tag: qa
+    label: qa  # Cambiado de 'tag' a 'label'
     increment: Patch
     prevent-increment-of-merged-branch-version: false
     track-merge-target: false
@@ -30,7 +30,7 @@ branches:
     source-branches: ['develop', 'release', 'qa']
   develop:
     mode: ContinuousDeployment
-    tag: dev
+    label: dev  # Cambiado de 'tag' a 'label'
     increment: Minor
     prevent-increment-of-merged-branch-version: false
     track-merge-target: true
