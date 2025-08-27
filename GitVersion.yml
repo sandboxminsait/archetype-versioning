@@ -1,14 +1,6 @@
 mode: Mainline
 branches:
-  main:
-    mode: ContinuousDelivery
-    label: ""
-  release:
-    mode: ContinuousDelivery
-    label: rc
-  qa:
-    mode: ContinuousDelivery
-    label: qa
-  develop:
-    mode: ContinuousDeployment
-    label: dev
+  master:
+    regex: ^latest$
+  pull-request:
+    tag: pr
