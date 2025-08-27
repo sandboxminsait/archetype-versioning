@@ -5,38 +5,23 @@ commit-message-incrementing: Disabled
 branches:
   main:
     mode: ContinuousDelivery
-    label: ""  # Cambiado de 'tag' a 'label'
+    label: ""
     increment: Patch
-    prevent-increment-of-merged-branch-version: true
-    track-merge-target: false
     is-mainline: true
   release:
     mode: ContinuousDelivery
-    label: rc  # Cambiado de 'tag' a 'label'
+    label: rc
     increment: Patch
-    prevent-increment-of-merged-branch-version: false
-    track-merge-target: false
-    is-mainline: false
     regex: ^releases?[/-]
-    source-branches: ['main', 'develop', 'release']
   qa:
     mode: ContinuousDelivery
-    label: qa  # Cambiado de 'tag' a 'label'
+    label: qa
     increment: Patch
-    prevent-increment-of-merged-branch-version: false
-    track-merge-target: false
-    is-mainline: false
     regex: ^qa[/-]
-    source-branches: ['develop', 'release', 'qa']
   develop:
     mode: ContinuousDeployment
-    label: dev  # Cambiado de 'tag' a 'label'
+    label: dev
     increment: Minor
-    prevent-increment-of-merged-branch-version: false
-    track-merge-target: true
-    is-mainline: false
     regex: ^dev(elop)?(ment)?$[/-]
-    source-branches: ['develop', 'release', 'qa', 'main']
 ignore:
   sha: []
-merge-message-formats: {}
