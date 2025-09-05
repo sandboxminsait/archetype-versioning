@@ -1,167 +1,113 @@
-workflow: GitFlow/v1
+mode: ContinuousDelivery
+commit-message-incrementing: MergeMessageOnly
 
-# Configuración global
-assembly-versioning-scheme: MajorMinorPatch
-assembly-file-versioning-scheme: MajorMinorPatch
-tag-prefix: '[vV]?'
-version-in-branch-pattern: (?<version>[vV]?\d+(\.\d+)?(\.\d+)?).*
-
-# Patrones de mensajes para incremento automático basado en commits
-major-version-bump-message: '\+semver:\s?(breaking|major)|^(feat|fix|perf)(\(.+\))?\!\:'
-minor-version-bump-message: '\+semver:\s?(feature|minor)|^feat(\(.+\))?:'
-patch-version-bump-message: '\+semver:\s?(fix|patch)|^fix(\(.+\))?:'
+major-version-bump-message: '\+semver:\s?(breaking|major)'
+minor-version-bump-message: '\+semver:\s?(feature|minor)'
+patch-version-bump-message: '\+semver:\s?(fix|patch)'
 no-bump-message: '\+semver:\s?(none|skip)'
-
-# Formato de fecha para commits
-commit-date-format: yyyy-MM-dd
-update-build-number: true
+tag-prefix: '[vV]?'
 semantic-version-format: Strict
 
-# Estrategias de cálculo de versión
-strategies:
-- Fallback
-- ConfiguredNextVersion
-- MergeMessage
-- TaggedCommit
-- TrackReleaseBranches
-- VersionInBranchName
+prevent-increment:
+  when-current-commit-tagged: true
 
-# Configuración específica de ramas
 branches:
-  # Rama main - versión de producción (1.1.0)
   main:
+    mode: ContinuousDeployment
+    regex:  ^master$|^main$
+    label: ''          # 1.1.0 (sin sufijo)
+    increment: Minor
+    is-main-branch: true
+    prevent-increment:
+      of-merged-branch: true
+    track-merge-message: true
+    is-source-branch-for:
+    - release
+    - QA
+    - develop
+    - hotfix
+    - sprint
+
+  sprint:
     mode: ContinuousDelivery
-    label: ''
+    regex: ^sprint\/(?<BranchName>.+)$
+    label: pre         # 1.1.0-pre.N
+    increment: Minor
+    prevent-increment:
+      of-merged-branch: true
+    track-merge-message: true
+    source-branches:
+    - develop
+    - QA
+    - main
+    - release
+    
+  develop:
+    mode: ContinuousDelivery
+    regex: ^develop$
+    label: dev         # 1.1.0-dev.N
+    increment: Inherit
+    prevent-increment:
+      of-merged-branch: true
+    track-merge-message: true
+    tracks-release-branches: false
+    source-branches:
+    - QA
+    - main
+    - release
+    is-source-branch-for:
+    - sprint
+
+  QA:
+    mode: ContinuousDelivery
+    regex: ^QA$    # acepta QA/qa
+    label: qa          # 1.1.0-qa.N
+    increment: Inherit
+    prevent-increment:
+      of-merged-branch: true
+    track-merge-message: true
+    tracks-release-branches: false
+    source-branches:
+    - QA
+    - main
+    - develop
+    is-source-branch-for:
+    - develop
+
+  release:
+    mode: ContinuousDelivery
+    regex: ^releases?[\/-].+
+    label: rc          # 1.1.0-rc.N
+    increment: Inherit
+    track-merge-message: true
+    tracks-release-branches: false
+    source-branches:
+    - QA
+    - main
+    - develop
+
+  hotfix:
+    mode: ContinuousDelivery
+    # Si usas hotfix/* y quieres pre-release identificable
+    regex: ^hotfix(es)?[\/-].+
+    label: fix         # 1.1.0-hotfix.N
     increment: Patch
     prevent-increment:
       of-merged-branch: true
-    track-merge-target: false
-    track-merge-message: true
-    regex: ^main$|^master$
-    source-branches: ['release']
-    is-source-branch-for: []
-    tracks-release-branches: false
-    is-release-branch: false
-    is-main-branch: true
-    pre-release-weight: 60000
+    source-branches:
+    - main
 
-  # Rama release - versión release candidate (1.1.0-rc.1)
-  release:
-    mode: ContinuousDelivery
-    label: 'rc'
-    increment: Minor
-    prevent-increment:
-      of-merged-branch: true
-      when-current-commit-tagged: false
-    track-merge-target: false
-    track-merge-message: true
-    regex: ^releases?[\/-]?.*$|^release$
-    source-branches: ['QA']
-    is-source-branch-for: ['main']
-    tracks-release-branches: false
-    is-release-branch: true
-    is-main-branch: false
-    pre-release-weight: 30000
-
-  # Rama QA - versión qa (1.1.0-qa.1)
-  QA:
-    mode: ContinuousDelivery
-    label: 'qa'
-    increment: Minor
-    prevent-increment:
-      of-merged-branch: false
-      when-current-commit-tagged: false
-    track-merge-target: false
-    track-merge-message: true
-    regex: ^QA$|^qa$
-    source-branches: ['develop']
-    is-source-branch-for: ['release']
-    tracks-release-branches: false
-    is-release-branch: false
-    is-main-branch: false
-    pre-release-weight: 20000
-
-  # Rama develop - versión desarrollo (1.1.0-dev.1)
-  develop:
-    mode: ContinuousDelivery
-    label: 'dev'
-    increment: Minor
-    prevent-increment:
-      when-current-commit-tagged: false
-    track-merge-target: true
-    track-merge-message: true
-    regex: ^dev(elop)?(ment)?$
-    source-branches: ['sprint']
-    is-source-branch-for: ['QA']
-    tracks-release-branches: true
-    is-release-branch: false
-    is-main-branch: false
-    pre-release-weight: 10000
-
-  # Rama sprint - no despliega, hereda versión
-  sprint:
-    mode: ManualDeployment
-    label: 'sprint'
-    increment: Inherit
-    prevent-increment:
-      when-current-commit-tagged: false
-    track-merge-message: true
-    regex: ^sprint[\/-]?.*$
-    source-branches: ['feature']
-    is-source-branch-for: ['develop']
-    is-main-branch: false
-    pre-release-weight: 5000
-
-  # Ramas feature - no despliegan, heredan versión
-  feature:
-    mode: ManualDeployment
-    label: '{BranchName}'
-    increment: Inherit
-    prevent-increment:
-      when-current-commit-tagged: false
-    track-merge-message: true
-    regex: ^features?[\/-](?<BranchName>.+)
-    source-branches: ['task', 'sprint']
-    is-source-branch-for: ['sprint']
-    is-main-branch: false
-    pre-release-weight: 3000
-
-  # Ramas task - no despliegan, heredan versión
-  task:
-    mode: ManualDeployment
-    label: '{BranchName}'
-    increment: Inherit
-    prevent-increment:
-      when-current-commit-tagged: false
-    track-merge-message: true
-    regex: ^tasks?[\/-](?<BranchName>.+)
-    source-branches: ['feature', 'develop', 'sprint']
-    is-source-branch-for: ['feature']
-    is-main-branch: false
-    pre-release-weight: 1000
-
-  # Configuración para Pull Requests - hereda la versión de la rama de destino
   pull-request:
     mode: ContinuousDelivery
-    label: ''
-    increment: None
-    prevent-increment:
-      of-merged-branch: true
-      when-current-commit-tagged: false
-    track-merge-target: true
+    regex: ^(pull-requests|pull|pr)[\/-].*
+    label: PullRequest
+    increment: Inherit
     track-merge-message: true
-    regex: ^(pull-requests|pull|pr)[\/-](?<Number>\d*)|refs\/pull\/\d+\/merge$
-    source-branches: 
-      - develop
-      - QA
-      - release
-      - main
-      - feature
-      - sprint
-      - task
-    is-source-branch-for: []
-    pre-release-weight: 30000
-
-# Configuración para ignorar commits específicos si es necesario
-ignore:
-  sha: []
+    label-number-pattern: ''
+    source-branches:
+    - main
+    - release
+    - QA
+    - develop
+    - hotfix
+    - sprint
