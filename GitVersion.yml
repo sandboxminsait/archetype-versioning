@@ -99,7 +99,7 @@ branches:
 
   pull-request:
     mode: ContinuousDelivery
-    regex: ^(pull-requests|pull|pr)[\/-].*
+    regex: ^(pull-requests|pull|pr|merge)[\/-].*
     label: PullRequest
     increment: Inherit
     track-merge-message: true
