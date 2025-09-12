@@ -16,7 +16,7 @@ branches:
     mode: ContinuousDeployment
     regex:  ^master$|^main$
     label: ''          # 1.1.0 (sin sufijo)
-    increment: Minor
+    increment: Patch
     is-main-branch: true
     prevent-increment:
       of-merged-branch: true
